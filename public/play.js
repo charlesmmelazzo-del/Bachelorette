@@ -28,7 +28,8 @@ function h(tag, attrs, ...kids) {
   for (const kid of kids.flat()) if (kid !== null && kid !== undefined && kid !== false) el.append(kid.nodeType ? kid : document.createTextNode(String(kid)));
   return el;
 }
-const C = n => CFG.couples.find(c => c.name === n);
+// A couple's current partner (after the emergency swap, the swapped-in celebrity)
+const C = n => { const c = CFG.couples.find(c => c.name === n); return ST && ST.swapped && c.swap ? { ...c, ...c.swap } : c; };
 const couple = n => `${n} & ${C(n).short}`;
 const card = (...kids) => h("div", { class: "pcard" }, ...kids);
 
@@ -106,6 +107,13 @@ function render(force) {
       const myIdx = CFG.couples.findIndex(c => c.name === me);
       if (s.introStep >= 2 * myIdx + 1) views.push(partnerCard(me));
       else views.push(card(h("h2", {}, "Who's your partner?"), h("p", {}, "AI cast you with a celebrity partner. Watch the big screen for your reveal...")));
+      break;
+    }
+    case "emergency": {
+      const t = CFG.couples.find(c => c.swap);
+      views.push(card(h("h2", { class: "center" }, "🚨 BREAKING NEWS 🚨"),
+        h("p", { class: "center" }, me === t.name ? `${me}... look at the big screen. Something has happened to your partner.` : "Eyes on the big screen. This is not a drill.")));
+      if (me === t.name) views.push(partnerCard(me));
       break;
     }
     case "cast":

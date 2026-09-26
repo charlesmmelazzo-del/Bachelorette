@@ -13,7 +13,13 @@ module.exports = {
   // `bride: true` marks who the optional "Bride Clause" protects.
   COUPLES: [
     { name: "Haven",   celeb: "Timothée Chalamet",    short: "Timothée", img: "timothee", why: "He looks like he wandered out of a period drama. So does she." },
-    { name: "Tori",    celeb: "Justin Bieber",        short: "Justin",   img: "justin",   why: "Bieber fever finally gets treated. Bodhi still gets the song." },
+    { name: "Tori",    celeb: "Justin Bieber",        short: "Justin",   img: "justin",   why: "Bieber fever finally gets treated. Bodhi still gets the song.",
+      // Right after her reveal, an "emergency message" swaps her partner for the rest of the game
+      swap: {
+        celeb: "Donald Trump", short: "Donald", img: "trump",
+        why: "He appointed himself. Nobody could stop him.",
+        message: "Wow.. Tori... I was shocked and saddened that I wasn't your celebrity partner... I would be the best dancer quite frankly... everyone knows that if I were your partner we would win... we would dance so well you wouldn't believe... many are saying I'm a great dancer... they are saying I'm the best dancer... ever in the world... and so I am replacing Justin as your partner. THANK YOU FOR YOUR ATTENTION TO THIS MATTER",
+      } },
     { name: "Clare",   celeb: "Jonathan Bailey",      short: "Jonathan", img: "jonathan", why: "Tall, charming, and, most importantly, his name starts with J." },
     { name: "Jane",    celeb: "Jason Statham",        short: "Jason",    img: "jason",    why: "The only man who could survive rehearsal with her." },
     { name: "Stef",    celeb: "Pete Davidson",        short: "Pete",     img: "pete",     why: "Finally, a partner who won't notice if she doesn't show up." },

@@ -18,6 +18,7 @@ const INTRO_SECONDS = +process.env.INTRO_SECONDS || 10; // partner-reveal slides
 const AUTO_SECONDS = {
   rules: 12,        // "Here's how tonight works"
   intro: INTRO_SECONDS,
+  emergency: 28,    // the partner-swap "emergency message" (alert, photo, typed-out quote)
   cast: 8,          // "This season's couples"
   roundIntro: 6,    // "Here's who's left"
   perform: 15,      // each of the two performances
@@ -33,6 +34,7 @@ const io = new Server(server);
 
 const NAMES = DATA.COUPLES.map(c => c.name);
 const byName = Object.fromEntries(DATA.COUPLES.map(c => [c.name, c]));
+const partner = n => (S.swapped && byName[n].swap ? { ...byName[n], ...byName[n].swap } : byName[n]);
 const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 const rand = a => a[Math.floor(Math.random() * a.length)];
 
@@ -41,6 +43,7 @@ function freshState(keepPlayers) {
   return {
     phase: "lobby",          // lobby | rules | intro | cast | roundIntro | block | perform | vote | suspense | result | finale
     introStep: 0,            // 0..(2*N-1): even = question, odd = reveal
+    swapped: false,          // true once the "emergency message" partner swap has happened
     autoAt: null,            // when the current screen auto-advances (see AUTO_SECONDS)
     players: keepPlayers || {}, // name -> token
     remaining: NAMES.slice(),
@@ -138,6 +141,13 @@ function advance() {
     case "lobby": S.phase = "rules"; break;
     case "rules": S.phase = "intro"; S.introStep = 0; break;
     case "intro":
+      // a reveal of a couple with a `swap` is interrupted by the emergency message
+      if (S.introStep % 2 === 1 && DATA.COUPLES[(S.introStep - 1) / 2].swap && !S.swapped) { S.phase = "emergency"; S.swapped = true; break; }
+      if (S.introStep < 2 * N - 1) S.introStep++;
+      else S.phase = "cast";
+      break;
+    case "emergency":
+      S.phase = "intro";
       if (S.introStep < 2 * N - 1) S.introStep++;
       else S.phase = "cast";
       break;
@@ -164,6 +174,7 @@ function back() {
   // light "oops" support for the non-destructive screens
   if (S.phase === "intro" && S.introStep > 0) S.introStep--;
   else if (S.phase === "intro") S.phase = "rules";
+  else if (S.phase === "emergency") { S.phase = "intro"; S.swapped = false; }
   else if (S.phase === "rules") S.phase = "lobby";
   else if (S.phase === "cast") { S.phase = "intro"; S.introStep = 2 * NAMES.length - 1; }
   else if (S.phase === "perform" && S.round.performIdx > 0) S.round.performIdx--;
@@ -189,7 +200,7 @@ function publicState() {
     };
   }
   return {
-    phase: S.phase, introStep: S.introStep, autoAt: S.autoAt, autoSeconds: AUTO_SECONDS[S.phase] || 0,
+    phase: S.phase, introStep: S.introStep, swapped: S.swapped, autoAt: S.autoAt, autoSeconds: AUTO_SECONDS[S.phase] || 0,
     joined: Object.keys(S.players),
     remaining: S.remaining, eliminated: S.eliminated,
     settings: S.settings, round, champion: S.phase === "finale" ? S.champion : null,
@@ -341,7 +352,7 @@ function fillStragglers() {
   if (S.phase === "block") {
     r.autofilled = r.autofilled || [];
     r.block.filter(b => !r.answers[b]).forEach(b => {
-      r.answers[b] = rand(DATA.AUTOFILL_ROUTINES).replaceAll("{name}", b).replaceAll("{celeb}", byName[b].short);
+      r.answers[b] = rand(DATA.AUTOFILL_ROUTINES).replaceAll("{name}", b).replaceAll("{celeb}", partner(b).short);
       r.autofilled.push(b);
     });
   }

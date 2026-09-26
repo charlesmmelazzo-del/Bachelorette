@@ -24,6 +24,21 @@ body.host { overflow: hidden; }
 #stage.bg-stage { background-image: url(img/bg_stage.jpg); }
 #stage.bg-question { background-image: url(img/bg_question.jpg); }
 #stage.bg-reveal { background-image: url(img/bg_reveal.jpg); }
+#stage.bg-emergency { background: radial-gradient(ellipse at center, #3a0a12 0%, #0b0610 70%); animation: siren 1.2s linear infinite; }
+@keyframes siren { 0%, 100% { box-shadow: inset 0 0 12vw rgba(230,30,40,.85); } 50% { box-shadow: inset 0 0 12vw rgba(40,90,255,.85); } }
+.emergency { width: 88vw; }
+.em-head { font-family: var(--sans); font-weight: 900; font-size: 2.6vw; line-height: 1.15; color: #fff; background: #C8102E; border: .3vw solid #fff; border-radius: 1vw; padding: 1.4vh 2vw; text-align: center; letter-spacing: .05em; animation: emflash .6s steps(1) infinite; transition: font-size .5s, padding .5s; }
+@keyframes emflash { 50% { background: #fff; color: #C8102E; border-color: #C8102E; } }
+.emergency.alert .em-head { font-size: 5.2vw; padding: 5vh 3vw; animation-duration: .35s; }
+.emergency.alert .em-body { display: none; }
+.em-body { display: flex; align-items: center; gap: 3vw; margin-top: 3.5vh; text-align: left; }
+.em-photo { width: 20vw; flex: none; animation: pop .5s cubic-bezier(.2,1.6,.4,1) both; }
+.em-quote { font-family: var(--serif); font-style: italic; font-size: 1.75vw; line-height: 1.45; color: #fff; min-height: 30vh; }
+.em-caret { color: var(--gold); font-style: normal; animation: blink .8s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+.emergency.typed .em-caret { display: none; }
+.em-new { margin-top: 2.5vh; display: inline-block; background: var(--gold); color: var(--ink); font-weight: 900; font-size: 1.7vw; letter-spacing: .06em; padding: .8vh 1.4vw; border-radius: .6vw; visibility: hidden; }
+.emergency.typed .em-new { visibility: visible; animation: pop .5s cubic-bezier(.2,1.6,.4,1); }
 .live { position: fixed; top: 2.4vh; right: 1.6vw; background: rgba(0,0,0,.5); border-radius: .5vw; padding: .5vw 1vw; font-size: .9vw; letter-spacing: .15em; font-weight: 700; z-index: 5; }
 .live::before { content: ""; display: inline-block; width: .7vw; height: .7vw; border-radius: 50%; background: #ff3b3b; margin-right: .6vw; vertical-align: middle; animation: blink 1.4s infinite; }
 .live b { color: var(--white); } .live span { color: var(--gold); }

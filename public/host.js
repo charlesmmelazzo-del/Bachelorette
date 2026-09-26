@@ -12,7 +12,8 @@ function h(tag, attrs, ...kids) {
   for (const kid of kids.flat()) if (kid !== null && kid !== undefined && kid !== false) el.append(kid.nodeType ? kid : document.createTextNode(String(kid)));
   return el;
 }
-const C = name => CFG.couples.find(c => c.name === name);
+// A couple's current partner (after the emergency swap, the swapped-in celebrity)
+const C = name => { const c = CFG.couples.find(c => c.name === name); return ST && ST.swapped && c.swap ? { ...c, ...c.swap } : c; };
 const couple = n => `${n} & ${C(n).short}`;
 const img = n => `img/${C(n).img}.jpg`;
 const frame = (n, cls = "") => h("div", { class: "frame " + cls }, h("img", { src: img(n), alt: C(n).celeb }));
@@ -88,6 +89,19 @@ setInterval(() => {
 }, 250);
 const timer = dl => dl ? h("div", { class: "timer", "data-deadline": dl }, "") : null;
 
+// ---------- emergency message: alert (3s) → photo → quote types out → new partner ----------
+const EM_ALERT_MS = 3000, EM_TYPE_START_MS = 4000, EM_CHARS_PER_SEC = 28;
+setInterval(() => {
+  const em = document.querySelector(".emergency");
+  if (!em) return;
+  const t = Date.now() - +em.dataset.started, msg = em.dataset.msg;
+  em.classList.toggle("alert", t < EM_ALERT_MS);
+  const n = Math.max(0, Math.min(msg.length, Math.floor((t - EM_TYPE_START_MS) / 1000 * EM_CHARS_PER_SEC)));
+  const typed = em.querySelector(".em-typed");
+  if (typed.textContent.length !== n) typed.textContent = msg.slice(0, n);
+  em.classList.toggle("typed", n >= msg.length && t > EM_TYPE_START_MS);
+}, 40);
+
 // ---------- confetti ----------
 function confetti(on) {
   const box = $("confetti");
@@ -117,6 +131,7 @@ function nextLabel(s) {
   switch (s.phase) {
     case "rules": return "Meet the couples ▶";
     case "intro": return s.introStep % 2 === 0 ? "Reveal partner ▶" : (s.introStep >= 2 * CFG.couples.length - 1 ? "See all couples ▶" : "Next couple ▶");
+    case "emergency": return "Next couple ▶";
     case "cast": return "Start round 1 ▶";
     case "roundIntro": return "Who's on the block? ▶";
     case "block": return "";
@@ -183,6 +198,22 @@ function render() {
           h("div", { class: "title-xl", style: reveal ? "color:#fff;font-size:4.4vw" : "" }, n.toUpperCase()),
           h("div", { class: "sub" }, "is dancing with..."),
           reveal ? [h("div", { class: "title-l pop" }, c.celeb.toUpperCase()), h("div", { class: "sub", style: "font-size:1.7vw;margin-top:2vh" }, c.why)] : null))];
+      break;
+    }
+    case "emergency": {
+      const t = CFG.couples.find(c => c.swap), sw = t.swap;
+      setScene("emergency", "", `Uh oh. ${t.name}, I think you have a new partner...`, false);
+      // Built once, then animated by the emergency ticker below, so state updates don't restart the typing
+      const started = s.autoAt - s.autoSeconds * 1000 - clockSkew;
+      const existing = $("stage").querySelector(".emergency");
+      if (existing && +existing.dataset.started === started) return;
+      body = h("div", { class: "emergency alert", "data-started": started, "data-msg": `“${sw.message}”` },
+        h("div", { class: "em-head" }, "🚨 EMERGENCY MESSAGE FROM THE OFFICE OF THE PRESIDENT OF THE UNITED STATES 🚨"),
+        h("div", { class: "em-body" },
+          h("div", { class: "frame em-photo" }, h("img", { src: `img/${sw.img}.jpg`, alt: sw.celeb })),
+          h("div", {},
+            h("div", { class: "em-quote" }, h("span", { class: "em-typed" }), h("span", { class: "em-caret" }, "▍")),
+            h("div", { class: "em-new" }, `NEW PARTNER: ${t.name.toUpperCase()} & ${sw.celeb.toUpperCase()}`))));
       break;
     }
     case "cast": {
@@ -294,7 +325,7 @@ function render() {
   // Gold bar along the top that fills up until the screen moves on by itself
   if (s.autoAt && s.autoSeconds) {
     const elapsed = s.autoSeconds * 1000 - (s.autoAt - (Date.now() + clockSkew));
-    body = [h("div", { class: "autobar" }, h("i", { style: `animation-duration:${s.autoSeconds}s;animation-delay:${-Math.max(0, elapsed)}ms` })), body];
+    body = [h("div", { class: "autobar" }, h("i", { style: `animation-duration:${s.autoSeconds}s;animation-delay:${-Math.max(0, elapsed)}ms` })), ...[body].flat()];
   }
   $("stage").replaceChildren(...[body].flat().filter(Boolean));
 }
