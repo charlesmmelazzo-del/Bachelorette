@@ -56,7 +56,7 @@ Optional variables:
 | `HOST_KEY` | (none) | Protects the host screen |
 | `WRITE_SECONDS` | 90 | Time to write a routine |
 | `VOTE_SECONDS` | 45 | Time to vote |
-| `INTRO_SECONDS` | 10 | How long each partner-reveal slide stays up |
+| `INTRO_SECONDS` | 10 | How long each partner-reveal slide stays up (other screen timings are in `AUTO_SECONDS` in server.js) |
 | `PUBLIC_URL` | auto | Force the URL in the QR code, if you add a custom domain |
 
 ## Customizing

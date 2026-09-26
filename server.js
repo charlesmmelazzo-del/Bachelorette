@@ -13,6 +13,17 @@ const PUBLIC_URL = process.env.PUBLIC_URL || ""; // optional: override the URL i
 const WRITE_SECONDS = +process.env.WRITE_SECONDS || 90;
 const VOTE_SECONDS = +process.env.VOTE_SECONDS || 45;
 const INTRO_SECONDS = +process.env.INTRO_SECONDS || 10; // partner-reveal slides auto-advance
+// How long each screen stays up before moving on by itself (the host can always press Next sooner).
+// The lobby waits for the host; writing and voting run on their own timers; the finale is the end.
+const AUTO_SECONDS = {
+  rules: 12,        // "Here's how tonight works"
+  intro: INTRO_SECONDS,
+  cast: 8,          // "This season's couples"
+  roundIntro: 6,    // "Here's who's left"
+  perform: 15,      // each of the two performances
+  suspense: 4,      // drumroll
+  result: 15,       // eliminated + judges
+};
 const STATE_FILE = path.join(__dirname, "data", "state.json");
 const PRIZE_DIR = path.join(__dirname, "prize");
 
@@ -30,7 +41,7 @@ function freshState(keepPlayers) {
   return {
     phase: "lobby",          // lobby | rules | intro | cast | roundIntro | block | perform | vote | suspense | result | finale
     introStep: 0,            // 0..(2*N-1): even = question, odd = reveal
-    introAt: null,           // when the current intro slide auto-advances
+    autoAt: null,            // when the current screen auto-advances (see AUTO_SECONDS)
     players: keepPlayers || {}, // name -> token
     remaining: NAMES.slice(),
     eliminated: [],          // [{name, round, tally}]
@@ -146,9 +157,9 @@ function advance() {
       break;
     case "finale": break;
   }
-  timeIntro();
+  timeAuto();
 }
-function timeIntro() { S.introAt = S.phase === "intro" ? Date.now() + INTRO_SECONDS * 1000 : null; }
+function timeAuto() { S.autoAt = AUTO_SECONDS[S.phase] ? Date.now() + AUTO_SECONDS[S.phase] * 1000 : null; }
 function back() {
   // light "oops" support for the non-destructive screens
   if (S.phase === "intro" && S.introStep > 0) S.introStep--;
@@ -156,7 +167,7 @@ function back() {
   else if (S.phase === "rules") S.phase = "lobby";
   else if (S.phase === "cast") { S.phase = "intro"; S.introStep = 2 * NAMES.length - 1; }
   else if (S.phase === "perform" && S.round.performIdx > 0) S.round.performIdx--;
-  timeIntro();
+  timeAuto();
 }
 
 // ---------------- VIEWS ----------------
@@ -178,7 +189,7 @@ function publicState() {
     };
   }
   return {
-    phase: S.phase, introStep: S.introStep, introAt: S.introAt, introSeconds: INTRO_SECONDS,
+    phase: S.phase, introStep: S.introStep, autoAt: S.autoAt, autoSeconds: AUTO_SECONDS[S.phase] || 0,
     joined: Object.keys(S.players),
     remaining: S.remaining, eliminated: S.eliminated,
     settings: S.settings, round, champion: S.phase === "finale" ? S.champion : null,
@@ -306,7 +317,7 @@ io.on("connection", (sock) => {
 });
 
 // ---------------- AUTO-ADVANCE ----------------
-// Intro slides move on every INTRO_SECONDS. Writing and voting move on once everyone is in
+// Most screens move on after AUTO_SECONDS. Writing and voting move on once everyone is in
 // (after a short beat so the TV can show the last "✔"), or when the timer runs out, at which
 // point stragglers get an embarrassing routine written for them / a vote cast for them.
 function everyoneIn() {
@@ -338,7 +349,7 @@ function fillStragglers() {
 }
 setInterval(() => {
   const r = S.round;
-  if (S.phase === "intro" && S.introAt && Date.now() >= S.introAt) { advance(); broadcast(); return; }
+  if (S.autoAt && AUTO_SECONDS[S.phase] && Date.now() >= S.autoAt) { advance(); broadcast(); return; }
   if (r && r.deadline && ["block", "vote"].includes(S.phase) && Date.now() > r.deadline + 1500) { fillStragglers(); advance(); broadcast(); }
 }, 500);
 

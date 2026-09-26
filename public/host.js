@@ -176,9 +176,7 @@ function render() {
       const kick = c.bride ? "And now... our bride-to-be!" : `Contestant ${idx + 1} of ${CFG.couples.length}`;
       setScene(reveal ? "reveal" : "question", "Round one · Meet the couples",
         reveal ? `${c.celeb}! Who called it?` : (c.bride ? "Ladies, on your feet for the bride! Who's HER partner?" : pickFrom(["Who's her partner, ballroom? Shout it out!", "Who did AI pick for her?", "Who's waiting backstage for her?", "Loudest guess wins!"], idx)));
-      const elapsed = s.introAt ? s.introSeconds * 1000 - (s.introAt - (Date.now() + clockSkew)) : 0;
-      body = [h("div", { class: "autobar" }, h("i", { style: `animation-duration:${s.introSeconds}s;animation-delay:${-Math.max(0, elapsed)}ms` })),
-        h("div", { class: "split" },
+      body = [h("div", { class: "split" },
         reveal ? frame(n, "flip") : qframe(),
         h("div", { class: "txt" },
           h("div", { class: "kicker" }, kick),
@@ -292,6 +290,11 @@ function render() {
       ];
       break;
     }
+  }
+  // Gold bar along the top that fills up until the screen moves on by itself
+  if (s.autoAt && s.autoSeconds) {
+    const elapsed = s.autoSeconds * 1000 - (s.autoAt - (Date.now() + clockSkew));
+    body = [h("div", { class: "autobar" }, h("i", { style: `animation-duration:${s.autoSeconds}s;animation-delay:${-Math.max(0, elapsed)}ms` })), body];
   }
   $("stage").replaceChildren(...[body].flat().filter(Boolean));
 }
