@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DWTS: Host Screen</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="host">
+  <div id="stage" class="bg-stage"></div>
+  <div class="live"><b>LIVE </b><span>FROM THE BALLROOM</span></div>
+  <div id="corner" class="corner-tag"></div>
+  <div id="mc" class="mc" style="display:none"></div>
+  <div id="joinCorner" class="join-corner" style="display:none"><img src="/qr.svg" alt="Join QR code"><div>JOIN / VOTE</div></div>
+  <div id="confetti" class="confetti"></div>
+  <div class="hint">Space / → = next · ← = back · F = fullscreen · H = controls</div>
+  <div id="controls">
+    <button id="bBack">← Back</button>
+    <button id="bNext" class="primary">Next →</button>
+    <button id="bShuffle" title="Pick two different couples for this round">🔀 Reshuffle round</button>
+    <button id="bExtend">+30s</button>
+    <label><input type="checkbox" id="cBride"> Bride Clause</label>
+    <button id="bReset">Reset game…</button>
+  </div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="host.js"></script>
+</body>
+</html>

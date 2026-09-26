@@ -1,0 +1,5 @@
+Drop the gift card QR code image in this folder, named exactly:
+
+    prize.png     (prize.jpg / prize.jpeg / prize.webp also work)
+
+It will only ever be shown on the winner's phone, at the very end of the game.

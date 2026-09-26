@@ -1,0 +1,20 @@
+{
+  "name": "dwts-bachelorette-live",
+  "version": "1.0.0",
+  "description": "Live Dancing with the Stars party game: big screen + phone voting",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.2.1",
+    "qrcode": "^1.5.4",
+    "socket.io": "^4.8.4"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "private": true
+}
