@@ -138,7 +138,7 @@ function render(force) {
         views.push(card(h("h2", {}, "The audience is voting..."), h("p", {}, "You're on the chopping block. Smile for the cameras and look innocent. 😇")));
       } else {
         views.push(card(h("h2", {}, r.final ? "Who's the runner-up?" : "Who should go home?"),
-          h("p", { class: "small" }, r.final ? "Vote to ELIMINATE one couple. The other wins the Mirrorball!" : "Tap the couple you want to ELIMINATE. You can change your vote until time's up."),
+          h("p", { class: "small" }, r.final ? "Vote to ELIMINATE one couple. The other wins the Mirrorball!" : "Tap the couple you want to ELIMINATE. You can change your vote until everyone's voted."),
           h("div", { class: "ptimer", "data-deadline": r.deadline || "" })));
         r.block.forEach(n => {
           const a = r.assign[n];

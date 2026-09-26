@@ -67,6 +67,9 @@ body.host { overflow: hidden; }
 
 .lobby-wrap { display: flex; gap: 4vw; align-items: center; }
 .startbtn { display: block; width: 100%; margin-top: 3vh; padding: 1.6vw 2vw; border: none; border-radius: 1vw; background: var(--gold); color: var(--ink); font-family: var(--serif); font-size: 2.6vw; font-weight: 900; letter-spacing: .1vw; cursor: pointer; box-shadow: 0 0 2.5vw rgba(242,201,76,.55); animation: startpulse 1.8s ease-in-out infinite; }
+.nextbig { position: fixed; left: 1vw; bottom: 1.8vh; z-index: 7; width: 12.4vw; padding: 1.6vh .8vw; border: none; border-radius: 99px; background: var(--pink); color: #fff; font-family: var(--sans); font-size: 1.45vw; font-weight: 900; line-height: 1.15; cursor: pointer; box-shadow: 0 0 2vw rgba(255,95,176,.6); }
+.nextbig:hover { filter: brightness(1.12); }
+.nextbig.soft { background: rgba(0,0,0,.6); border: 1px solid var(--gold); color: var(--gold); }
 .startbtn:hover { filter: brightness(1.1); }
 @keyframes startpulse { 50% { box-shadow: 0 0 4.5vw rgba(242,201,76,.9); transform: scale(1.02); } }
 .qr-big { background: #fff; padding: 1vw; border-radius: 1.2vw; }
@@ -123,12 +126,12 @@ body.host { overflow: hidden; }
 @keyframes fall { to { transform: translateY(115vh) rotate(720deg); } }
 
 /* host controls */
-#controls { position: fixed; left: 1vw; bottom: 1vh; z-index: 10; display: flex; gap: .4vw; opacity: 0; transition: opacity .3s; }
+#controls { position: fixed; left: 1vw; bottom: 11vh; z-index: 10; display: flex; gap: .4vw; opacity: 0; transition: opacity .3s; }
 #controls:hover, body.show-controls #controls { opacity: 1; }
 #controls button { background: rgba(0,0,0,.75); color: #fff; border: 1px solid var(--gold); border-radius: .4vw; padding: .5vw .8vw; font-size: .85vw; cursor: pointer; }
 #controls button.primary { background: var(--gold); color: var(--ink); font-weight: 900; }
 #controls label { background: rgba(0,0,0,.75); color: #fff; border-radius: .4vw; padding: .5vw .8vw; font-size: .85vw; display: flex; align-items: center; gap: .4vw; }
-.hint { position: fixed; left: 1vw; bottom: .4vh; width: 13vw; font-size: .8vw; color: rgba(255,255,255,.35); z-index: 3; }
+.hint { position: fixed; left: 1vw; bottom: 8.5vh; width: 13vw; font-size: .8vw; color: rgba(255,255,255,.35); z-index: 3; }
 
 /* ================= PLAYER (phone) ================= */
 body.player { background: #12061f url(img/bg_question.jpg) center/cover fixed; min-height: 100%; }

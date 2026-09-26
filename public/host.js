@@ -28,6 +28,7 @@ socket.on("error-msg", m => alert(m));
 // ---------- controls ----------
 const send = (ev, v) => socket.emit(ev, v);
 $("bNext").onclick = () => send("host:advance");
+$("nextBig").onclick = e => { e.currentTarget.blur(); send("host:advance"); };
 $("bBack").onclick = () => send("host:back");
 $("bShuffle").onclick = () => send("host:reshuffle");
 $("bExtend").onclick = () => send("host:extend");
@@ -77,8 +78,29 @@ function grid(names, big) {
     h("div", { class: "cell pop" }, frame(n), h("div", { class: "nm" }, n), h("div", { class: "cl" }, "& " + C(n).celeb))));
 }
 
+// The on-screen "what happens next" button (lobby has its own START button; finale is the end)
+function nextLabel(s) {
+  const r = s.round;
+  switch (s.phase) {
+    case "rules": return "Meet the couples ▶";
+    case "intro": return s.introStep % 2 === 0 ? "Reveal partner ▶" : (s.introStep >= 2 * CFG.couples.length - 1 ? "See all couples ▶" : "Next couple ▶");
+    case "cast": return "Start round 1 ▶";
+    case "roundIntro": return "Who's on the block? ▶";
+    case "block": return "Skip ahead ▶";
+    case "perform": return r.performIdx < 1 ? "Next performance ▶" : "Open voting ▶";
+    case "vote": return "Close voting ▶";
+    case "suspense": return "Reveal ▶";
+    case "result": return r.final ? "Crown the champion 🏆" : "Next round ▶";
+  }
+  return "";
+}
+
 function render() {
   const s = ST, stage = $("stage"), r = s.round;
+  const nl = nextLabel(s), nb = $("nextBig");
+  nb.style.display = nl ? "" : "none";
+  nb.textContent = nl;
+  nb.classList.toggle("soft", ["block", "vote"].includes(s.phase));
   $("cBride").checked = !!s.settings.brideClause;
   confetti(s.phase === "finale");
   let body;

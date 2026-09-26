@@ -266,22 +266,20 @@ io.on("connection", (sock) => {
   sock.on("answer", (text, cb) => {
     const r = S.round, n = sock.data.name;
     if (!r || S.phase !== "block" || !r.block.includes(n)) return cb && cb({ ok: false, msg: "Not your turn!" });
-    if (r.deadline && Date.now() > r.deadline + 3000) return cb && cb({ ok: false, msg: "Time's up!" });
+    if (r.deadline && Date.now() > r.deadline + 2000) return cb && cb({ ok: false, msg: "Time's up!" });
     r.answers[n] = String(text || "").trim().slice(0, 220);
     cb && cb({ ok: true });
     broadcast();
-    // Both routines in: give the TV a beat to show "✔ submitted", then go straight to the performances
-    if (r.block.every(b => r.answers[b])) setTimeout(() => {
-      if (S.phase === "block" && S.round === r && r.block.every(b => r.answers[b])) { advance(); broadcast(); }
-    }, 3000);
+    autoCheck();
   });
   sock.on("vote", (target, cb) => {
     const r = S.round, n = sock.data.name;
     if (!r || S.phase !== "vote" || !n || r.block.includes(n) || !r.block.includes(target)) return cb && cb({ ok: false, msg: "Voting isn't open for you" });
-    if (r.deadline && Date.now() > r.deadline + 3000) return cb && cb({ ok: false, msg: "Voting is closed!" });
+    if (r.deadline && Date.now() > r.deadline + 2000) return cb && cb({ ok: false, msg: "Voting is closed!" });
     r.votes[n] = target;
     cb && cb({ ok: true });
     broadcast();
+    autoCheck();
   });
 
   // ----- host events -----
@@ -294,6 +292,30 @@ io.on("connection", (sock) => {
   sock.on("host:release", hostOnly(name => { delete S.players[name]; }));
   sock.on("host:reset", hostOnly(keep => { S = freshState(keep ? S.players : {}); }));
 });
+
+// ---------------- AUTO-ADVANCE ----------------
+// Writing and voting move on by themselves once everyone is in (after a short beat so the TV
+// can show the last "✔"), or when the timer runs out. The host can still skip ahead any time.
+function everyoneIn() {
+  const r = S.round;
+  if (!r) return false;
+  if (S.phase === "block") return r.block.every(b => r.answers[b]);
+  if (S.phase === "vote") { const el = eligibleVoters(); return el.length > 0 && el.every(v => r.votes[v]); }
+  return false;
+}
+let autoTimer = null;
+function autoCheck() {
+  if (autoTimer || !everyoneIn()) return;
+  const phase = S.phase, r = S.round;
+  autoTimer = setTimeout(() => {
+    autoTimer = null;
+    if (S.phase === phase && S.round === r && everyoneIn()) { advance(); broadcast(); }
+  }, 3000);
+}
+setInterval(() => {
+  const r = S.round;
+  if (r && r.deadline && ["block", "vote"].includes(S.phase) && Date.now() > r.deadline + 1500) { advance(); broadcast(); }
+}, 500);
 
 // Tick so countdowns stay in sync on clients
 setInterval(() => { if (S.round && S.round.deadline) io.emit("tick", Date.now()); }, 5000);
