@@ -169,6 +169,13 @@ body.player { background: #12061f url(img/bg_question.jpg) center/cover fixed; m
 .phone header { text-align: center; margin-bottom: 18px; }
 .phone header .t { font-family: var(--serif); font-weight: 800; color: var(--gold); font-size: 24px; }
 .phone header .s { font-size: 12px; letter-spacing: .2em; color: var(--pink); font-weight: 900; text-transform: uppercase; }
+body.player.em-flash { animation: phonesiren .7s steps(1) infinite; }
+@keyframes phonesiren { 0% { background: #7a0a16; } 50% { background: #0c1f6b; } }
+.em-phone { background: #C8102E; color: #fff; border: 3px solid #fff; border-radius: 18px; padding: 22px 18px; margin-bottom: 16px; text-align: center; animation: emflash .5s steps(1) infinite; }
+.em-phone-siren { font-size: 54px; line-height: 1; }
+.em-phone-head { font-weight: 900; font-size: 26px; line-height: 1.15; letter-spacing: .03em; margin-top: 8px; }
+.em-phone-sub { font-size: 16px; margin-top: 10px; font-weight: 700; }
+.em-late { animation: pop .5s cubic-bezier(.2,1.6,.4,1) 4s both; }
 .pcard { background: var(--card); border: 1.5px solid var(--gold); border-radius: 18px; padding: 20px; margin-bottom: 16px; box-shadow: 0 6px 22px rgba(0,0,0,.4); }
 .pcard h2 { font-family: var(--serif); color: var(--gold); margin: 0 0 8px; font-size: 26px; }
 .pcard p { line-height: 1.45; margin: 6px 0; }
