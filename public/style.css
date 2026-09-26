@@ -32,7 +32,7 @@ body.host { overflow: hidden; }
 .mc { position: fixed; left: 50%; bottom: 3vh; transform: translateX(-50%); width: 72vw; background: var(--gold); color: var(--ink); border-radius: 99px; padding: 1.1vh 2vw 1.1vh 5vw; font-size: 1.35vw; box-shadow: 0 .6vh 2vh rgba(0,0,0,.45); z-index: 5; text-align: left; font-style: italic; }
 .mc::before { content: "🎤"; font-style: normal; position: absolute; left: .6vw; top: 50%; transform: translateY(-50%); background: #fff; border-radius: 50%; width: 3vw; height: 3vw; display: flex; align-items: center; justify-content: center; font-size: 1.5vw; }
 .mc b { color: #8A1D5C; font-style: normal; margin-right: .6vw; }
-.join-corner { position: fixed; right: 1.6vw; bottom: 2.2vh; background: #fff; padding: .4vw; border-radius: .6vw; z-index: 6; text-align: center; }
+.join-corner { position: fixed; right: 1.6vw; bottom: 7.5vh; background: #fff; padding: .4vw; border-radius: .6vw; z-index: 6; text-align: center; }
 .join-corner img { width: 6.5vw; display: block; }
 .join-corner div { color: var(--ink); font-size: .7vw; font-weight: 900; letter-spacing: .1em; margin-top: .2vw; }
 
@@ -70,6 +70,9 @@ body.host { overflow: hidden; }
 .nextbig { position: fixed; left: 1vw; bottom: 1.8vh; z-index: 7; width: 12.4vw; padding: 1.6vh .8vw; border: none; border-radius: 99px; background: var(--pink); color: #fff; font-family: var(--sans); font-size: 1.45vw; font-weight: 900; line-height: 1.15; cursor: pointer; box-shadow: 0 0 2vw rgba(255,95,176,.6); }
 .nextbig:hover { filter: brightness(1.12); }
 .nextbig.soft { background: rgba(0,0,0,.6); border: 1px solid var(--gold); color: var(--gold); }
+.resetbig { position: fixed; right: 1.6vw; bottom: 1.8vh; z-index: 7; width: 7.3vw; padding: .8vh .4vw; border: 1px solid rgba(242,201,76,.6); border-radius: 99px; background: rgba(0,0,0,.55); color: var(--gold); font-family: var(--sans); font-size: .9vw; font-weight: 700; cursor: pointer; }
+.resetbig:hover { background: rgba(0,0,0,.8); }
+.resetbig.armed { width: auto; background: #C0392B; border-color: #fff; color: #fff; }
 .startbtn:hover { filter: brightness(1.1); }
 @keyframes startpulse { 50% { box-shadow: 0 0 4.5vw rgba(242,201,76,.9); transform: scale(1.02); } }
 .qr-big { background: #fff; padding: 1vw; border-radius: 1.2vw; }

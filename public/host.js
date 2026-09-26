@@ -29,6 +29,19 @@ socket.on("error-msg", m => alert(m));
 const send = (ev, v) => socket.emit(ev, v);
 $("bNext").onclick = () => send("host:advance");
 $("nextBig").onclick = e => { e.currentTarget.blur(); send("host:advance"); };
+// Big-screen reset: two clicks within 3 seconds. Back to the lobby; everyone stays checked in.
+let bigResetArmed = 0, bigResetTimer = null;
+$("resetBig").onclick = e => {
+  const b = e.currentTarget;
+  b.blur();
+  clearTimeout(bigResetTimer);
+  const disarm = () => { bigResetArmed = 0; b.classList.remove("armed"); b.textContent = "↺ Reset game"; };
+  if (Date.now() - bigResetArmed < 3000) { send("host:reset", true); disarm(); return; }
+  bigResetArmed = Date.now();
+  b.classList.add("armed");
+  b.textContent = "Click again to restart the whole game";
+  bigResetTimer = setTimeout(disarm, 3000);
+};
 $("bBack").onclick = () => send("host:back");
 $("bShuffle").onclick = () => send("host:reshuffle");
 $("bExtend").onclick = () => send("host:extend");
@@ -101,6 +114,7 @@ function render() {
   nb.style.display = nl ? "" : "none";
   nb.textContent = nl;
   nb.classList.toggle("soft", ["block", "vote"].includes(s.phase));
+  $("resetBig").style.display = s.phase === "lobby" ? "none" : "";
   $("cBride").checked = !!s.settings.brideClause;
   confetti(s.phase === "finale");
   let body;
