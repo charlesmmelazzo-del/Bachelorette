@@ -23,20 +23,21 @@ fetch("/api/config").then(r => r.json()).then(c => { CFG = c; if (ST) render(); 
 fetch("/api/joinurl").then(r => r.json()).then(j => window.JOIN_URL = j.url);
 socket.on("state", s => { ST = s; clockSkew = s.now - Date.now(); if (CFG) render(); });
 socket.on("tick", t => { clockSkew = t - Date.now(); });
+socket.on("reset", () => { try { localStorage.removeItem("dwts_role"); } catch (e) {} location.href = "/"; });
 socket.on("error-msg", m => alert(m));
 
 // ---------- controls ----------
 const send = (ev, v) => socket.emit(ev, v);
 $("bNext").onclick = () => send("host:advance");
 $("nextBig").onclick = e => { e.currentTarget.blur(); send("host:advance"); };
-// Big-screen reset: two clicks within 3 seconds. Back to the lobby; everyone stays checked in.
+// Big-screen reset: two clicks within 3 seconds. Everyone (TV included) goes back to the welcome screen.
 let bigResetArmed = 0, bigResetTimer = null;
 $("resetBig").onclick = e => {
   const b = e.currentTarget;
   b.blur();
   clearTimeout(bigResetTimer);
   const disarm = () => { bigResetArmed = 0; b.classList.remove("armed"); b.textContent = "↺ Reset game"; };
-  if (Date.now() - bigResetArmed < 3000) { send("host:reset", true); disarm(); return; }
+  if (Date.now() - bigResetArmed < 3000) { send("host:reset"); disarm(); return; }
   bigResetArmed = Date.now();
   b.classList.add("armed");
   b.textContent = "Click again to restart the whole game";
@@ -47,8 +48,8 @@ $("bShuffle").onclick = () => send("host:reshuffle");
 $("bExtend").onclick = () => send("host:extend");
 $("cBride").onchange = e => send("host:bride", e.target.checked);
 $("bReset").onclick = () => {
-  if (Date.now() - resetArmed < 3000) { send("host:reset", true); resetArmed = 0; $("bReset").textContent = "Reset game…"; }
-  else { resetArmed = Date.now(); $("bReset").textContent = "Click again to reset (keeps players)"; setTimeout(() => $("bReset").textContent = "Reset game…", 3000); }
+  if (Date.now() - resetArmed < 3000) { send("host:reset"); resetArmed = 0; $("bReset").textContent = "Reset game…"; }
+  else { resetArmed = Date.now(); $("bReset").textContent = "Click again to restart everything"; setTimeout(() => $("bReset").textContent = "Reset game…", 3000); }
 };
 document.addEventListener("keydown", e => {
   if (e.target.tagName === "INPUT") return;

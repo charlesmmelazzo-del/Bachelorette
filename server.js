@@ -290,7 +290,8 @@ io.on("connection", (sock) => {
   sock.on("host:extend", hostOnly(() => { if (S.round && S.round.deadline) S.round.deadline = Math.max(S.round.deadline, Date.now()) + 30000; }));
   sock.on("host:bride", hostOnly(v => { S.settings.brideClause = !!v; }));
   sock.on("host:release", hostOnly(name => { delete S.players[name]; }));
-  sock.on("host:reset", hostOnly(keep => { S = freshState(keep ? S.players : {}); }));
+  // Full restart: forget every name and send every screen (TV and phones) back to the welcome screen
+  sock.on("host:reset", hostOnly(() => { S = freshState(); io.emit("reset"); }));
 });
 
 // ---------------- AUTO-ADVANCE ----------------

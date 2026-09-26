@@ -32,7 +32,7 @@ Host controls:
 - **Reshuffle round:** picks two different couples, if you don't like the matchup.
 - **+30s:** adds time to the writing or voting timer.
 - **Bride Clause:** when checked, Lauren can't be put on the chopping block until the final two.
-- **Reset game:** click it twice. It starts over and keeps everyone's name picks.
+- **Reset game:** bottom-right corner of the TV (or in the host controls). Click it twice. It clears every player and sends the TV and all phones back to the welcome screen.
 - **Name taken by the wrong phone?** In the lobby, double-click the name on the TV to free it up.
 
 ## Deploying to Railway (about 10 minutes)

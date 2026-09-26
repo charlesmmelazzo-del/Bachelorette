@@ -35,6 +35,7 @@ const card = (...kids) => h("div", { class: "pcard" }, ...kids);
 fetch("/api/config").then(r => r.json()).then(c => { CFG = c; render(true); });
 socket.on("state", s => { ST = s; clockSkew = s.now - Date.now(); render(); });
 socket.on("tick", t => { clockSkew = t - Date.now(); });
+socket.on("reset", () => { try { localStorage.removeItem("dwts_role"); } catch (e) {} location.href = "/"; });
 socket.on("connect", () => render(true));
 socket.on("disconnect", () => { app.replaceChildren(card(h("p", { class: "center" }, "Reconnecting to the ballroom…"))); lastKey = ""; });
 
