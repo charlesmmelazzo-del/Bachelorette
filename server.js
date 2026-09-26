@@ -102,8 +102,9 @@ function tallyVotes() {
   const tally = { [a]: 0, [b]: 0 };
   Object.values(r.votes).forEach(t => { if (t in tally) tally[t]++; });
   let out, tie = false;
+  // Votes are for the favorite performance: the couple with FEWER votes goes home
   if (tally[a] === tally[b]) { tie = true; out = rand([a, b]); }
-  else out = tally[a] > tally[b] ? a : b;
+  else out = tally[a] < tally[b] ? a : b;
   const survivor = out === a ? b : a;
   const judges = Object.entries(DATA.JUDGE_QUIPS).map(([j, qs]) => ({ judge: j, quote: rand(qs), score: 2 + Math.floor(Math.random() * 5) }));
   r.result = { out, survivor, tally, tie, judges };
@@ -282,8 +283,9 @@ io.on("connection", (sock) => {
     const r = S.round, n = sock.data.name;
     if (!r || S.phase !== "vote" || !n || r.block.includes(n) || !r.block.includes(target)) return cb && cb({ ok: false, msg: "Voting isn't open for you" });
     if (r.deadline && Date.now() > r.deadline + 2000) return cb && cb({ ok: false, msg: "Voting is closed!" });
-    // Voting out the bride gets you called out on the big screen
-    if (byName[target].bride && r.votes[n] !== target) io.emit("shame", { voter: n, bride: target });
+    // Voting for the bride's opponent (i.e. voting the bride out) gets you called out on the big screen
+    const bride = r.block.find(b => byName[b].bride);
+    if (bride && target !== bride && r.votes[n] !== target) io.emit("shame", { voter: n, bride });
     r.votes[n] = target;
     cb && cb({ ok: true });
     broadcast();

@@ -139,17 +139,17 @@ function render(force) {
       if (r.block.includes(me)) {
         views.push(card(h("h2", {}, "The audience is voting..."), h("p", {}, "You're on the chopping block. Smile for the cameras and look innocent. 😇")));
       } else {
-        views.push(card(h("h2", {}, r.final ? "Who's the runner-up?" : "Who should go home?"),
-          h("p", { class: "small" }, r.final ? "Vote to ELIMINATE one couple. The other wins the Mirrorball!" : "Tap the couple you want to ELIMINATE. You can change your vote until everyone's voted. No vote by the buzzer and we'll pick for you!"),
+        views.push(card(h("h2", {}, r.final ? "Who wins the Mirrorball?" : "Who should stay?"),
+          h("p", { class: "small" }, r.final ? "Tap your FAVORITE performance. Most votes wins!" : "Tap your FAVORITE performance. That couple stays; the one with fewer votes goes home. You can change your vote until everyone's voted. No vote by the buzzer and we'll pick for you!"),
           h("div", { class: "ptimer", "data-deadline": r.deadline || "" })));
         r.block.forEach(n => {
           const a = r.assign[n];
           views.push(h("button", { class: "votebtn" + (you.myVote === n ? " sel" : ""), onclick: () => vote(n) },
             h("img", { src: `img/${C(n).img}.jpg`, alt: "" }),
-            h("div", {}, h("div", { class: "n" }, (you.myVote === n ? "❌ " : "") + couple(n)), h("div", { class: "d" }, `${a.dance} · "${a.song}"`),
+            h("div", {}, h("div", { class: "n" }, (you.myVote === n ? "💚 " : "") + couple(n)), h("div", { class: "d" }, `${a.dance} · "${a.song}"`),
               h("div", { class: "q" }, (r.answers && r.answers[n]) || "(speechless)"))));
         });
-        if (you.myVote) views.push(h("p", { class: "center small" }, `Your vote: eliminate ${you.myVote}`));
+        if (you.myVote) views.push(h("p", { class: "center small" }, `Your vote: keep ${you.myVote}`));
       }
       break;
     case "suspense":

@@ -34,13 +34,16 @@ function nextShame() {
   const x = shameQueue.shift(), box = $("shame");
   if (!x) { shaming = false; box.style.display = "none"; return; }
   shaming = true;
-  box.replaceChildren(h("div", { class: "shame-card" },
+  box.replaceChildren(
     h("div", { class: "shame-wow" }, "WOW."),
-    h("div", { class: "shame-line" }, h("b", {}, x.voter), ` is voting to eliminate ${x.bride}!`),
-    h("div", { class: "shame-sub" }, "Wow. That says a lot about them.")));
+    h("div", {}, h("div", { class: "shame-line" }, h("b", {}, x.voter), ` is voting to eliminate ${x.bride}!`),
+      h("div", { class: "shame-sub" }, "Wow. That says a lot about them.")));
   box.style.display = "";
-  setTimeout(nextShame, 3000);
+  box.style.animation = "none"; void box.offsetWidth; box.style.animation = ""; // replay the pop-in for each call-out
+  shameTimer = setTimeout(nextShame, 3000);
 }
+let shameTimer = null;
+function clearShame() { shameQueue.length = 0; clearTimeout(shameTimer); shaming = false; $("shame").style.display = "none"; }
 
 // ---------- controls ----------
 const send = (ev, v) => socket.emit(ev, v);
@@ -133,6 +136,7 @@ function render() {
   $("resetBig").style.display = s.phase === "lobby" ? "none" : "";
   $("cBride").checked = !!s.settings.brideClause;
   confetti(s.phase === "finale");
+  if (s.phase !== "vote") clearShame();
   let body;
   switch (s.phase) {
     case "lobby": {
@@ -161,7 +165,7 @@ function render() {
         h("div", { class: "steps" },
           [["1", "Meet the couples", "AI cast each of you with a celebrity partner. Guess who before the big reveal."],
            ["2", "The chopping block", "Each round, two couples get a random dance and song. Pitch your performance on your phone."],
-           ["3", "Vote them off", "Everyone else votes on who leaves the ballroom. Last couple standing wins."]]
+           ["3", "Vote for your favorite", "Everyone else votes for the best performance. That couple stays; the other goes home. Last couple standing wins."]]
             .map(([n, t, d]) => h("div", { class: "step card" }, h("div", { class: "num" }, n), h("h3", {}, t), h("p", {}, d)))),
         h("div", { class: "prize" }, `🏆 The Mirrorball champion wins ${CFG.prizeText}!`),
       ];
@@ -231,10 +235,11 @@ function render() {
     }
     case "vote": {
       setScene("question", r.final ? "The Grand Finale" : `Round ${r.n}`,
-        r.final ? "Vote for who you want to ELIMINATE. The other couple takes the Mirrorball!" : "Voting is open! Scan the code if you haven't. Who's leaving the ballroom?");
+        r.final ? "Vote for your favorite. The winner takes the Mirrorball!" : "Voting is open! Vote for your favorite performance. The other couple goes home!");
       body = [
         h("div", { class: "kicker" }, "Voting is open"),
-        h("div", { class: "title-l" }, r.final ? "Who's the runner-up?" : "Who should leave the ballroom?"),
+        h("div", { class: "title-l" }, r.final ? "Who wins the Mirrorball?" : "Who should STAY?"),
+        h("div", { class: "vote-how" }, r.final ? "💚 Vote for your favorite performance. Most votes wins!" : "💚 Vote for your favorite performance. Fewest votes goes home."),
         h("div", { class: "block vote" }, r.block.map(n => {
           const a = r.assign[n];
           return h("div", { class: "bcard card" }, frame(n),
@@ -266,7 +271,7 @@ function render() {
           h("div", { class: "txt" },
             h("div", { class: "kicker" }, r.final ? "Runner-up" : "Eliminated"),
             h("div", { class: "title-xl pop", style: "font-size:4.6vw" }, couple(out).toUpperCase()),
-            h("div", { class: "tally" }, "The votes: ", h("b", {}, `${a} ${res.tally[a]}`), "  ·  ", h("b", {}, `${b} ${res.tally[b]}`), res.tie ? "  (the judges broke the tie)" : ""),
+            h("div", { class: "tally" }, "Votes to stay: ", h("b", {}, `${a} ${res.tally[a]}`), "  ·  ", h("b", {}, `${b} ${res.tally[b]}`), res.tie ? "  (the judges broke the tie)" : ""),
             h("div", { class: "judges" }, res.judges.map(j => h("div", { class: "judge card" },
               h("div", { class: "sc" }, j.score), h("div", { class: "jn" }, j.judge), h("div", { class: "jq" }, `"${j.quote}"`)))),
             r.final ? null : h("div", { class: "safe" }, h("b", {}, "SAFE: "), `${couple(res.survivor)} dance another day!`))),

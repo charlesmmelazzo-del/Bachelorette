@@ -77,14 +77,14 @@ body.host { overflow: hidden; }
 .autobar i { display: block; height: 100%; width: 0; background: var(--gold); animation: autobar linear forwards; }
 @keyframes autobar { to { width: 100%; } }
 .autofill-tag { margin-top: 1.5vh; font-size: 1.2vw; color: var(--pink); font-weight: 700; }
-.shame { position: fixed; inset: 0; z-index: 20; display: flex; align-items: center; justify-content: center; background: rgba(120,0,40,.55); animation: shameflash .45s ease-in-out 3; }
-.shame-card { background: #fff; color: var(--ink); border: .5vw solid var(--pink); border-radius: 2vw; padding: 3vw 4vw; max-width: 70vw; text-align: center; box-shadow: 0 0 6vw rgba(255,95,176,.9); animation: shamepop .35s cubic-bezier(.2,1.6,.4,1); }
-.shame-wow { font-family: var(--serif); font-size: 6vw; font-weight: 900; color: var(--pink); line-height: 1; }
-.shame-line { font-size: 3vw; font-weight: 900; margin-top: 1.5vh; }
+.shame { position: fixed; left: 50%; top: 2.5vh; transform: translateX(-50%); z-index: 20; width: 64vw; display: flex; align-items: center; gap: 2vw; background: #fff; color: var(--ink); border: .35vw solid var(--pink); border-radius: 1.4vw; padding: 1.4vh 2.4vw; box-shadow: 0 0 3vw rgba(255,95,176,.85); animation: shamepop .35s cubic-bezier(.2,1.6,.4,1), shameglow .5s ease-in-out .35s 5; }
+.shame-wow { font-family: var(--serif); font-size: 3.6vw; font-weight: 900; color: var(--pink); line-height: 1; flex: none; }
+.shame-line { font-size: 1.9vw; font-weight: 900; }
 .shame-line b { color: #8A1D5C; }
-.shame-sub { font-size: 2.2vw; font-style: italic; margin-top: 1.5vh; }
-@keyframes shameflash { 50% { background: rgba(255,95,176,.75); } }
-@keyframes shamepop { from { transform: scale(.4) rotate(-6deg); opacity: 0; } }
+.shame-sub { font-size: 1.4vw; font-style: italic; margin-top: .4vh; }
+@keyframes shamepop { from { transform: translateX(-50%) scale(.4) rotate(-4deg); opacity: 0; } }
+@keyframes shameglow { 50% { box-shadow: 0 0 5vw rgba(255,95,176,1); } }
+.vote-how { font-size: 1.7vw; font-weight: 700; color: #fff; margin: -.5vh 0 2vh; }
 .startbtn:hover { filter: brightness(1.1); }
 @keyframes startpulse { 50% { box-shadow: 0 0 4.5vw rgba(242,201,76,.9); transform: scale(1.02); } }
 .qr-big { background: #fff; padding: 1vw; border-radius: 1.2vw; }

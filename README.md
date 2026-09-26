@@ -12,7 +12,7 @@ A Jackbox-style party game. The TV shows the ballroom (host screen), and everyon
    - "On the chopping block" puts two couples up. Each gets a random dance and a random (ridiculous) song.
    - Those two write their performance pitch on their phones, with a 90-second timer.
    - The TV shows each performance one at a time.
-   - Everyone else votes on their phone for who to eliminate. Eliminated girls keep voting. 45-second timer.
+   - Everyone else votes on their phone for their FAVORITE performance. That couple stays; fewest votes goes home. Eliminated girls keep voting. 45-second timer.
    - Drumroll, reveal, vote split, parody judges' comments.
 5. **Finale:** confetti. The gift card QR appears **only on the winner's phone** so she can screenshot it.
 
