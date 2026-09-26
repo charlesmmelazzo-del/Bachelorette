@@ -11,6 +11,10 @@ function getToken() {
 const TOKEN = getToken();
 const socket = io({ auth: { role: "player", token: TOKEN } });
 let CFG = null, ST = null, lastKey = "", draft = "", switching = false, clockSkew = 0, flash = "";
+// "Host or contestant?" is asked once per phone; a phone that already has a name skips it
+let role = "";
+try { role = localStorage.getItem("dwts_role") || ""; } catch (e) {}
+function setRole(v) { role = v; try { localStorage.setItem("dwts_role", v); } catch (e) {} render(true); }
 
 const app = document.getElementById("app");
 function h(tag, attrs, ...kids) {
@@ -50,9 +54,27 @@ function partnerCard(me) {
 function render(force) {
   if (!CFG || !ST) return;
   const s = ST, r = s.round, you = s.you, me = you && you.name;
-  const key = JSON.stringify([s.phase, s.introStep, me, switching, flash, (!me || switching) ? s.joined : 0, r && [r.n, r.block, r.assign, r.performIdx, !!r.result], you && [you.myVote, you.myAnswer, you.hasPrize], s.remaining.length, s.champion]);
+  const key = JSON.stringify([role, s.phase, s.introStep, me, switching, flash, (!me || switching) ? s.joined : 0, r && [r.n, r.block, r.assign, r.performIdx, !!r.result], you && [you.myVote, you.myAnswer, you.hasPrize], s.remaining.length, s.champion]);
   if (!force && key === lastKey) return;
   lastKey = key;
+
+  // ---- host or contestant? ----
+  if (!me && role !== "player") {
+    if (role === "host" && CFG.hostKeyRequired) {
+      const pw = h("input", { type: "password", placeholder: "Host password", autocomplete: "off" });
+      const go = () => { if (pw.value.trim()) location.href = "/host?key=" + encodeURIComponent(pw.value.trim()); };
+      pw.addEventListener("keydown", e => { if (e.key === "Enter") go(); });
+      app.replaceChildren(card(h("h2", {}, "Host login"), h("p", {}, "Enter the host password to open the big-screen view."), pw,
+        h("button", { class: "bigbtn", onclick: go }, "Open the host screen"),
+        h("button", { class: "linkish", onclick: () => setRole("") }, "← Back")));
+      setTimeout(() => pw.focus(), 50);
+      return;
+    }
+    app.replaceChildren(card(h("h2", {}, "Welcome to the ballroom! 🪩"), h("p", {}, "Which one are you?"),
+      h("button", { class: "rolebtn main", onclick: () => setRole("player") }, "💃 I'm a contestant", h("small", {}, "Pick your name, pitch your routines, and vote")),
+      h("button", { class: "rolebtn", onclick: () => CFG.hostKeyRequired ? setRole("host") : (location.href = "/host") }, "🎤 I'm the host", h("small", {}, "Open the big-screen view for the TV"))));
+    return;
+  }
 
   // ---- pick your name ----
   if (!me || switching) {
@@ -63,7 +85,8 @@ function render(force) {
           const taken = s.joined.includes(c.name) && c.name !== me;
           return h("button", { class: c.name === me ? "me" : "", disabled: taken, onclick: () => join(c.name) }, c.name);
         }))),
-      h("p", { class: "small center" }, "Name greyed out but it's you? Ask the host to free it up."));
+      h("p", { class: "small center" }, "Name greyed out but it's you? Ask the host to free it up."),
+      me ? null : h("p", { class: "center" }, h("button", { class: "linkish", onclick: () => setRole("") }, "← Actually, I'm the host")));
     return;
   }
 
@@ -102,7 +125,7 @@ function render(force) {
           (() => { const ta = h("textarea", { maxlength: "220", placeholder: "Sell it! The funnier the better..." }); ta.value = draft || you.myAnswer || ""; ta.addEventListener("input", e => draft = e.target.value); return ta; })(),
           h("div", { class: "ptimer", "data-deadline": r.deadline || "" }),
           h("button", { class: "bigbtn pink", onclick: submitAnswer }, you.myAnswer ? "Update my routine" : "Submit my routine"),
-          you.myAnswer ? h("p", { class: "small center" }, "✔ Submitted! You can still edit until the host moves on.") : null));
+          you.myAnswer ? h("p", { class: "small center" }, "✔ Submitted! You can still edit until your opponent finishes. Then the show goes on!") : null));
       } else {
         views.push(card(h("h2", {}, "Rehearsals are underway"), h("p", {}, `${r.block.join(" and ")} are writing their routines. Get ready to vote!`)));
       }

@@ -66,6 +66,9 @@ body.host { overflow: hidden; }
 .grid.big { max-width: 92vw; } .grid.big .cell { width: 13.5vw; } .grid.big .nm { font-size: 1.9vw; } .grid.big .cl { font-size: 1.2vw; }
 
 .lobby-wrap { display: flex; gap: 4vw; align-items: center; }
+.startbtn { display: block; width: 100%; margin-top: 3vh; padding: 1.6vw 2vw; border: none; border-radius: 1vw; background: var(--gold); color: var(--ink); font-family: var(--serif); font-size: 2.6vw; font-weight: 900; letter-spacing: .1vw; cursor: pointer; box-shadow: 0 0 2.5vw rgba(242,201,76,.55); animation: startpulse 1.8s ease-in-out infinite; }
+.startbtn:hover { filter: brightness(1.1); }
+@keyframes startpulse { 50% { box-shadow: 0 0 4.5vw rgba(242,201,76,.9); transform: scale(1.02); } }
 .qr-big { background: #fff; padding: 1vw; border-radius: 1.2vw; }
 .qr-big img { width: 22vw; display: block; }
 .url { font-size: 1.3vw; color: var(--soft); margin-top: 1vh; word-break: break-all; }
@@ -143,6 +146,11 @@ body.player { background: #12061f url(img/bg_question.jpg) center/cover fixed; m
 .bigbtn { width: 100%; padding: 18px; border-radius: 16px; border: none; background: var(--gold); color: var(--ink); font-weight: 900; font-size: 18px; margin-top: 12px; }
 .bigbtn.pink { background: var(--pink); color: #fff; }
 .bigbtn:disabled { opacity: .5; }
+.rolebtn { display: block; width: 100%; margin-top: 14px; padding: 18px 16px; border-radius: 16px; border: 2px solid var(--gold); background: rgba(26,11,46,.8); color: #fff; text-align: left; font-size: 20px; font-weight: 900; }
+.rolebtn small { display: block; margin-top: 4px; font-size: 14px; font-weight: 400; color: var(--soft); }
+.rolebtn.main { background: var(--gold); color: var(--ink); }
+.rolebtn.main small { color: var(--ink); opacity: .75; }
+.pcard input[type=password] { width: 100%; box-sizing: border-box; padding: 14px; border-radius: 12px; border: 2px solid var(--gold); background: rgba(0,0,0,.35); color: #fff; font-size: 18px; margin-top: 8px; }
 textarea { width: 100%; min-height: 130px; border-radius: 14px; border: 2px solid var(--gold); background: rgba(0,0,0,.35); color: #fff; font-size: 17px; padding: 12px; font-family: var(--sans); }
 .assign { display: grid; grid-template-columns: 1fr; gap: 8px; margin: 10px 0 14px; }
 .assign div { background: rgba(255,255,255,.07); border-radius: 12px; padding: 10px 12px; }

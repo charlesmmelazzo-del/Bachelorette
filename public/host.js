@@ -97,7 +97,8 @@ function render() {
               class: "chip" + (s.joined.includes(c.name) ? " on" : ""),
               title: "Double-click to free up this name",
               ondblclick: () => s.joined.includes(c.name) && send("host:release", c.name),
-            }, c.name))))),
+            }, c.name))),
+            h("button", { class: "startbtn", onclick: () => send("host:advance") }, "▶  START THE SHOW"))),
       ];
       break;
     }

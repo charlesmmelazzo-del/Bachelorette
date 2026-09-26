@@ -210,12 +210,13 @@ function broadcast() {
 app.use(express.static(path.join(__dirname, "public")));
 app.get("/", (req, res) => res.sendFile(path.join(__dirname, "public", "play.html")));
 app.get("/host", (req, res) => {
-  if (HOST_KEY && req.query.key !== HOST_KEY) return res.status(403).send("Add ?key=YOUR_HOST_KEY to the URL.");
+  if (HOST_KEY && req.query.key !== HOST_KEY) return res.status(403).send('Wrong host password. <a href="/">Go back and try again</a>.');
   res.sendFile(path.join(__dirname, "public", "host.html"));
 });
 app.get("/api/config", (req, res) => res.json({
   title: DATA.SHOW_TITLE, subtitle: DATA.SUBTITLE, prizeText: DATA.PRIZE_TEXT,
   couples: DATA.COUPLES, writeSeconds: WRITE_SECONDS, voteSeconds: VOTE_SECONDS,
+  hostKeyRequired: !!HOST_KEY,
 }));
 function joinUrl(req) {
   if (PUBLIC_URL) return PUBLIC_URL.replace(/\/$/, "") + "/";
@@ -269,6 +270,10 @@ io.on("connection", (sock) => {
     r.answers[n] = String(text || "").trim().slice(0, 220);
     cb && cb({ ok: true });
     broadcast();
+    // Both routines in: give the TV a beat to show "✔ submitted", then go straight to the performances
+    if (r.block.every(b => r.answers[b])) setTimeout(() => {
+      if (S.phase === "block" && S.round === r && r.block.every(b => r.answers[b])) { advance(); broadcast(); }
+    }, 3000);
   });
   sock.on("vote", (target, cb) => {
     const r = S.round, n = sock.data.name;
