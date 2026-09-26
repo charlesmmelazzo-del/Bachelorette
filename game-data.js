@@ -74,6 +74,19 @@ module.exports = {
     ["Gasolina", "Daddy Yankee"],
   ],
 
+  // Written for anyone on the chopping block who doesn't submit before the timer runs out.
+  // {name} = the contestant, {celeb} = her celebrity partner's first name.
+  AUTOFILL_ROUTINES: [
+    "{name} forgot the choreography, so she mouthed the words and pointed at the judges for 90 seconds.",
+    "{name} spent the whole routine looking for her other shoe. {celeb} did a solo out of pity.",
+    "{name} did the Macarena. Wrong song. Wrong dance. Wrong everything. Twice.",
+    "{name}'s routine was one very slow, very confident walk across the stage. Then she tripped.",
+    "{name} got stage fright, hid behind {celeb}, and let him do jazz hands for both of them.",
+    "{name} submitted a blank page and a dream. The dream was also blank.",
+    "{name} texted her ex mid-routine. The judges saw. We all saw.",
+    "{name} did the sprinkler, the shopping cart, and the lawnmower. In that order. For the whole song.",
+  ],
+
   // Prompt shown to the two contestants on the chopping block (one picked per round)
   PROMPTS: [
     "Describe the vibe and energy of your performance.",

@@ -73,6 +73,18 @@ body.host { overflow: hidden; }
 .resetbig { position: fixed; right: 1.6vw; bottom: 1.8vh; z-index: 7; width: 7.3vw; padding: .8vh .4vw; border: 1px solid rgba(242,201,76,.6); border-radius: 99px; background: rgba(0,0,0,.55); color: var(--gold); font-family: var(--sans); font-size: .9vw; font-weight: 700; cursor: pointer; }
 .resetbig:hover { background: rgba(0,0,0,.8); }
 .resetbig.armed { width: auto; background: #C0392B; border-color: #fff; color: #fff; }
+.autobar { position: fixed; left: 0; right: 0; top: 0; height: .6vh; background: rgba(255,255,255,.12); z-index: 6; }
+.autobar i { display: block; height: 100%; width: 0; background: var(--gold); animation: autobar linear forwards; }
+@keyframes autobar { to { width: 100%; } }
+.autofill-tag { margin-top: 1.5vh; font-size: 1.2vw; color: var(--pink); font-weight: 700; }
+.shame { position: fixed; inset: 0; z-index: 20; display: flex; align-items: center; justify-content: center; background: rgba(120,0,40,.55); animation: shameflash .45s ease-in-out 3; }
+.shame-card { background: #fff; color: var(--ink); border: .5vw solid var(--pink); border-radius: 2vw; padding: 3vw 4vw; max-width: 70vw; text-align: center; box-shadow: 0 0 6vw rgba(255,95,176,.9); animation: shamepop .35s cubic-bezier(.2,1.6,.4,1); }
+.shame-wow { font-family: var(--serif); font-size: 6vw; font-weight: 900; color: var(--pink); line-height: 1; }
+.shame-line { font-size: 3vw; font-weight: 900; margin-top: 1.5vh; }
+.shame-line b { color: #8A1D5C; }
+.shame-sub { font-size: 2.2vw; font-style: italic; margin-top: 1.5vh; }
+@keyframes shameflash { 50% { background: rgba(255,95,176,.75); } }
+@keyframes shamepop { from { transform: scale(.4) rotate(-6deg); opacity: 0; } }
 .startbtn:hover { filter: brightness(1.1); }
 @keyframes startpulse { 50% { box-shadow: 0 0 4.5vw rgba(242,201,76,.9); transform: scale(1.02); } }
 .qr-big { background: #fff; padding: 1vw; border-radius: 1.2vw; }

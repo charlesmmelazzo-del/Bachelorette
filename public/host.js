@@ -26,6 +26,22 @@ socket.on("tick", t => { clockSkew = t - Date.now(); });
 socket.on("reset", () => { try { localStorage.removeItem("dwts_role"); } catch (e) {} location.href = "/"; });
 socket.on("error-msg", m => alert(m));
 
+// ---------- "voting out the bride" call-outs (3 seconds each, queued) ----------
+const shameQueue = [];
+let shaming = false;
+socket.on("shame", x => { shameQueue.push(x); if (!shaming) nextShame(); });
+function nextShame() {
+  const x = shameQueue.shift(), box = $("shame");
+  if (!x) { shaming = false; box.style.display = "none"; return; }
+  shaming = true;
+  box.replaceChildren(h("div", { class: "shame-card" },
+    h("div", { class: "shame-wow" }, "WOW."),
+    h("div", { class: "shame-line" }, h("b", {}, x.voter), ` is voting to eliminate ${x.bride}!`),
+    h("div", { class: "shame-sub" }, "Wow. That says a lot about them.")));
+  box.style.display = "";
+  setTimeout(nextShame, 3000);
+}
+
 // ---------- controls ----------
 const send = (ev, v) => socket.emit(ev, v);
 $("bNext").onclick = () => send("host:advance");
@@ -100,9 +116,9 @@ function nextLabel(s) {
     case "intro": return s.introStep % 2 === 0 ? "Reveal partner ▶" : (s.introStep >= 2 * CFG.couples.length - 1 ? "See all couples ▶" : "Next couple ▶");
     case "cast": return "Start round 1 ▶";
     case "roundIntro": return "Who's on the block? ▶";
-    case "block": return "Skip ahead ▶";
+    case "block": return "";
     case "perform": return r.performIdx < 1 ? "Next performance ▶" : "Open voting ▶";
-    case "vote": return "Close voting ▶";
+    case "vote": return "";
     case "suspense": return "Reveal ▶";
     case "result": return r.final ? "Crown the champion 🏆" : "Next round ▶";
   }
@@ -114,7 +130,6 @@ function render() {
   const nl = nextLabel(s), nb = $("nextBig");
   nb.style.display = nl ? "" : "none";
   nb.textContent = nl;
-  nb.classList.toggle("soft", ["block", "vote"].includes(s.phase));
   $("resetBig").style.display = s.phase === "lobby" ? "none" : "";
   $("cBride").checked = !!s.settings.brideClause;
   confetti(s.phase === "finale");
@@ -157,13 +172,15 @@ function render() {
       const kick = c.bride ? "And now... our bride-to-be!" : `Contestant ${idx + 1} of ${CFG.couples.length}`;
       setScene(reveal ? "reveal" : "question", "Round one · Meet the couples",
         reveal ? `${c.celeb}! Who called it?` : (c.bride ? "Ladies, on your feet for the bride! Who's HER partner?" : pickFrom(["Who's her partner, ballroom? Shout it out!", "Who did AI pick for her?", "Who's waiting backstage for her?", "Loudest guess wins!"], idx)));
-      body = h("div", { class: "split" },
+      const elapsed = s.introAt ? s.introSeconds * 1000 - (s.introAt - (Date.now() + clockSkew)) : 0;
+      body = [h("div", { class: "autobar" }, h("i", { style: `animation-duration:${s.introSeconds}s;animation-delay:${-Math.max(0, elapsed)}ms` })),
+        h("div", { class: "split" },
         reveal ? frame(n, "flip") : qframe(),
         h("div", { class: "txt" },
           h("div", { class: "kicker" }, kick),
           h("div", { class: "title-xl", style: reveal ? "color:#fff;font-size:4.4vw" : "" }, n.toUpperCase()),
           h("div", { class: "sub" }, "is dancing with..."),
-          reveal ? [h("div", { class: "title-l pop" }, c.celeb.toUpperCase()), h("div", { class: "sub", style: "font-size:1.7vw;margin-top:2vh" }, c.why)] : null));
+          reveal ? [h("div", { class: "title-l pop" }, c.celeb.toUpperCase()), h("div", { class: "sub", style: "font-size:1.7vw;margin-top:2vh" }, c.why)] : null))];
       break;
     }
     case "cast": {
@@ -208,7 +225,8 @@ function render() {
           h("div", { class: "kicker" }, "Now performing"),
           h("div", { class: "title-l" }, couple(n)),
           h("div", { class: "meta" }, "The ", h("b", {}, a.dance), " to ", h("b", {}, `"${a.song}"`), ` by ${a.artist}`),
-          h("div", { class: "quote pop" }, ans || "...she froze. Total silence. The band kept playing.")));
+          h("div", { class: "quote pop" }, ans || "...she froze. Total silence. The band kept playing."),
+          (r.autofilled || []).includes(n) ? h("div", { class: "autofill-tag" }, "⏱ She ran out of time, so the producers wrote this one for her.") : null));
       break;
     }
     case "vote": {

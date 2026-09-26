@@ -125,6 +125,7 @@ function render(force) {
           h("p", { style: "font-weight:700" }, r.prompt),
           (() => { const ta = h("textarea", { maxlength: "220", placeholder: "Sell it! The funnier the better..." }); ta.value = draft || you.myAnswer || ""; ta.addEventListener("input", e => draft = e.target.value); return ta; })(),
           h("div", { class: "ptimer", "data-deadline": r.deadline || "" }),
+          you.myAnswer ? null : h("p", { class: "small center" }, "⚠️ Don't let the timer run out, or the producers will write one for you. You won't like it."),
           h("button", { class: "bigbtn pink", onclick: submitAnswer }, you.myAnswer ? "Update my routine" : "Submit my routine"),
           you.myAnswer ? h("p", { class: "small center" }, "✔ Submitted! You can still edit until your opponent finishes. Then the show goes on!") : null));
       } else {
@@ -139,7 +140,7 @@ function render(force) {
         views.push(card(h("h2", {}, "The audience is voting..."), h("p", {}, "You're on the chopping block. Smile for the cameras and look innocent. 😇")));
       } else {
         views.push(card(h("h2", {}, r.final ? "Who's the runner-up?" : "Who should go home?"),
-          h("p", { class: "small" }, r.final ? "Vote to ELIMINATE one couple. The other wins the Mirrorball!" : "Tap the couple you want to ELIMINATE. You can change your vote until everyone's voted."),
+          h("p", { class: "small" }, r.final ? "Vote to ELIMINATE one couple. The other wins the Mirrorball!" : "Tap the couple you want to ELIMINATE. You can change your vote until everyone's voted. No vote by the buzzer and we'll pick for you!"),
           h("div", { class: "ptimer", "data-deadline": r.deadline || "" })));
         r.block.forEach(n => {
           const a = r.assign[n];

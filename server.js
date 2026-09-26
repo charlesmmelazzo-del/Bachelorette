@@ -12,6 +12,7 @@ const HOST_KEY = process.env.HOST_KEY || ""; // optional: protects /host
 const PUBLIC_URL = process.env.PUBLIC_URL || ""; // optional: override the URL in the QR code
 const WRITE_SECONDS = +process.env.WRITE_SECONDS || 90;
 const VOTE_SECONDS = +process.env.VOTE_SECONDS || 45;
+const INTRO_SECONDS = +process.env.INTRO_SECONDS || 10; // partner-reveal slides auto-advance
 const STATE_FILE = path.join(__dirname, "data", "state.json");
 const PRIZE_DIR = path.join(__dirname, "prize");
 
@@ -29,6 +30,7 @@ function freshState(keepPlayers) {
   return {
     phase: "lobby",          // lobby | rules | intro | cast | roundIntro | block | perform | vote | suspense | result | finale
     introStep: 0,            // 0..(2*N-1): even = question, odd = reveal
+    introAt: null,           // when the current intro slide auto-advances
     players: keepPlayers || {}, // name -> token
     remaining: NAMES.slice(),
     eliminated: [],          // [{name, round, tally}]
@@ -143,7 +145,9 @@ function advance() {
       break;
     case "finale": break;
   }
+  timeIntro();
 }
+function timeIntro() { S.introAt = S.phase === "intro" ? Date.now() + INTRO_SECONDS * 1000 : null; }
 function back() {
   // light "oops" support for the non-destructive screens
   if (S.phase === "intro" && S.introStep > 0) S.introStep--;
@@ -151,6 +155,7 @@ function back() {
   else if (S.phase === "rules") S.phase = "lobby";
   else if (S.phase === "cast") { S.phase = "intro"; S.introStep = 2 * NAMES.length - 1; }
   else if (S.phase === "perform" && S.round.performIdx > 0) S.round.performIdx--;
+  timeIntro();
 }
 
 // ---------------- VIEWS ----------------
@@ -167,11 +172,12 @@ function publicState() {
       eligible: eligibleVoters().length,
       deadline: r.deadline,
       performIdx: r.performIdx,
+      autofilled: showAnswers ? (r.autofilled || []) : [],
       result: ["result", "finale"].includes(S.phase) ? r.result : (S.phase === "suspense" ? { tie: r.result && r.result.tie } : null),
     };
   }
   return {
-    phase: S.phase, introStep: S.introStep,
+    phase: S.phase, introStep: S.introStep, introAt: S.introAt, introSeconds: INTRO_SECONDS,
     joined: Object.keys(S.players),
     remaining: S.remaining, eliminated: S.eliminated,
     settings: S.settings, round, champion: S.phase === "finale" ? S.champion : null,
@@ -276,6 +282,8 @@ io.on("connection", (sock) => {
     const r = S.round, n = sock.data.name;
     if (!r || S.phase !== "vote" || !n || r.block.includes(n) || !r.block.includes(target)) return cb && cb({ ok: false, msg: "Voting isn't open for you" });
     if (r.deadline && Date.now() > r.deadline + 2000) return cb && cb({ ok: false, msg: "Voting is closed!" });
+    // Voting out the bride gets you called out on the big screen
+    if (byName[target].bride && r.votes[n] !== target) io.emit("shame", { voter: n, bride: target });
     r.votes[n] = target;
     cb && cb({ ok: true });
     broadcast();
@@ -284,7 +292,8 @@ io.on("connection", (sock) => {
 
   // ----- host events -----
   const hostOnly = fn => (...args) => { if (sock.data.role === "host") { fn(...args); broadcast(); } };
-  sock.on("host:advance", hostOnly(() => advance()));
+  // Writing and voting are run by the timer only (they end early once everyone is in)
+  sock.on("host:advance", hostOnly(() => { if (!["block", "vote"].includes(S.phase)) advance(); }));
   sock.on("host:back", hostOnly(() => back()));
   sock.on("host:reshuffle", hostOnly(() => reshuffleRound()));
   sock.on("host:extend", hostOnly(() => { if (S.round && S.round.deadline) S.round.deadline = Math.max(S.round.deadline, Date.now()) + 30000; }));
@@ -295,8 +304,9 @@ io.on("connection", (sock) => {
 });
 
 // ---------------- AUTO-ADVANCE ----------------
-// Writing and voting move on by themselves once everyone is in (after a short beat so the TV
-// can show the last "✔"), or when the timer runs out. The host can still skip ahead any time.
+// Intro slides move on every INTRO_SECONDS. Writing and voting move on once everyone is in
+// (after a short beat so the TV can show the last "✔"), or when the timer runs out, at which
+// point stragglers get an embarrassing routine written for them / a vote cast for them.
 function everyoneIn() {
   const r = S.round;
   if (!r) return false;
@@ -313,9 +323,21 @@ function autoCheck() {
     if (S.phase === phase && S.round === r && everyoneIn()) { advance(); broadcast(); }
   }, 3000);
 }
+function fillStragglers() {
+  const r = S.round;
+  if (S.phase === "block") {
+    r.autofilled = r.autofilled || [];
+    r.block.filter(b => !r.answers[b]).forEach(b => {
+      r.answers[b] = rand(DATA.AUTOFILL_ROUTINES).replaceAll("{name}", b).replaceAll("{celeb}", byName[b].short);
+      r.autofilled.push(b);
+    });
+  }
+  if (S.phase === "vote") eligibleVoters().filter(v => !r.votes[v]).forEach(v => { r.votes[v] = rand(r.block); });
+}
 setInterval(() => {
   const r = S.round;
-  if (r && r.deadline && ["block", "vote"].includes(S.phase) && Date.now() > r.deadline + 1500) { advance(); broadcast(); }
+  if (S.phase === "intro" && S.introAt && Date.now() >= S.introAt) { advance(); broadcast(); return; }
+  if (r && r.deadline && ["block", "vote"].includes(S.phase) && Date.now() > r.deadline + 1500) { fillStragglers(); advance(); broadcast(); }
 }, 500);
 
 // Tick so countdowns stay in sync on clients
