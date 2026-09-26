@@ -89,17 +89,27 @@ setInterval(() => {
 }, 250);
 const timer = dl => dl ? h("div", { class: "timer", "data-deadline": dl }, "") : null;
 
-// ---------- emergency message: alert (3s) → photo → quote types out → new partner ----------
-const EM_ALERT_MS = 3000, EM_TYPE_START_MS = 4000, EM_CHARS_PER_SEC = 28;
+// ---------- emergency message: alert (3s) → photo → each page types out, holds, next → new partner ----------
+// (the server's emergencySeconds() uses the same timings to decide when to move on)
+const EM_ALERT_MS = 4000, EM_TYPE_START_MS = 5000;
 setInterval(() => {
   const em = document.querySelector(".emergency");
   if (!em) return;
-  const t = Date.now() - +em.dataset.started, msg = em.dataset.msg;
+  const sw = CFG.couples.find(c => c.swap).swap, { charsPerSecond: cps, holdSeconds: hold } = sw.typing;
+  const t = Date.now() - +em.dataset.started;
   em.classList.toggle("alert", t < EM_ALERT_MS);
-  const n = Math.max(0, Math.min(msg.length, Math.floor((t - EM_TYPE_START_MS) / 1000 * EM_CHARS_PER_SEC)));
-  const typed = em.querySelector(".em-typed");
-  if (typed.textContent.length !== n) typed.textContent = msg.slice(0, n);
-  em.classList.toggle("typed", n >= msg.length && t > EM_TYPE_START_MS);
+  // find the current page and how much of it is typed
+  let rel = t - EM_TYPE_START_MS, page = 0;
+  while (page < sw.pages.length - 1 && rel >= (sw.pages[page].length / cps + hold) * 1000) { rel -= (sw.pages[page].length / cps + hold) * 1000; page++; }
+  const text = sw.pages[page], n = Math.max(0, Math.min(text.length, Math.floor(rel / 1000 * cps)));
+  const last = page === sw.pages.length - 1;
+  const quote = em.querySelector(".em-quote"), typed = em.querySelector(".em-typed");
+  if (+quote.dataset.page !== page) { quote.dataset.page = page; typed.textContent = ""; }
+  quote.classList.toggle("final", last);
+  const shown = (page === 0 ? "“" : "") + text.slice(0, n) + (last && n >= text.length ? "”" : "");
+  if (typed.textContent !== shown) typed.textContent = shown;
+  em.querySelector(".em-count").textContent = last ? "" : `${page + 1} / ${sw.pages.length - 1}`;
+  em.classList.toggle("typed", last && n >= text.length);
 }, 40);
 
 // ---------- confetti ----------
@@ -207,12 +217,14 @@ function render() {
       const started = s.autoAt - s.autoSeconds * 1000 - clockSkew;
       const existing = $("stage").querySelector(".emergency");
       if (existing && +existing.dataset.started === started) return;
-      body = h("div", { class: "emergency alert", "data-started": started, "data-msg": `“${sw.message}”` },
+      body = h("div", { class: "emergency alert", "data-started": started },
+        h("img", { class: "em-seal", src: "img/emergency.jpg", alt: "Emergency message from the Office of the President of the United States" }),
         h("div", { class: "em-head" }, "🚨 EMERGENCY MESSAGE FROM THE OFFICE OF THE PRESIDENT OF THE UNITED STATES 🚨"),
         h("div", { class: "em-body" },
           h("div", { class: "frame em-photo" }, h("img", { src: `img/${sw.img}.jpg`, alt: sw.celeb })),
           h("div", {},
-            h("div", { class: "em-quote" }, h("span", { class: "em-typed" }), h("span", { class: "em-caret" }, "▍")),
+            h("div", { class: "em-quote", "data-page": -1 }, h("span", { class: "em-typed" }), h("span", { class: "em-caret" }, "▍")),
+            h("div", { class: "em-count" }),
             h("div", { class: "em-new" }, `NEW PARTNER: ${t.name.toUpperCase()} & ${sw.celeb.toUpperCase()}`))));
       break;
     }

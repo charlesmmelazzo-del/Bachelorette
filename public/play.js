@@ -113,8 +113,7 @@ function render(force) {
       // Every phone flashes the alert; the swapped contestant also gets her new partner card (after a beat)
       const t = CFG.couples.find(c => c.swap);
       views.push(h("div", { class: "em-phone" },
-        h("div", { class: "em-phone-siren" }, "🚨"),
-        h("div", { class: "em-phone-head" }, "EMERGENCY MESSAGE FROM THE PRESIDENT"),
+        h("img", { class: "em-phone-seal", src: "img/emergency.jpg", alt: "EMERGENCY MESSAGE FROM THE PRESIDENT" }),
         h("div", { class: "em-phone-sub" }, me === t.name ? `${me}... look at the big screen. Something has happened to your partner.` : "Look at the big screen. This is not a drill.")));
       if (me === t.name) { const pc = partnerCard(me); pc.classList.add("em-late"); views.push(pc); }
       try { if (navigator.vibrate) navigator.vibrate([400, 150, 400, 150, 800]); } catch (e) {}

@@ -18,7 +18,15 @@ module.exports = {
       swap: {
         celeb: "Donald Trump", short: "Donald", img: "trump",
         why: "He appointed himself. Nobody could stop him.",
-        message: "Wow.. Tori... I was shocked and saddened that I wasn't your celebrity partner... I would be the best dancer quite frankly... everyone knows that if I were your partner we would win... we would dance so well you wouldn't believe... many are saying I'm a great dancer... they are saying I'm the best dancer... ever in the world... and so I am replacing Justin as your partner. THANK YOU FOR YOUR ATTENTION TO THIS MATTER",
+        // Each entry is its own screen, typed out in big text. The last one is shown extra large.
+        pages: [
+          "Wow! Tori chose Justin as her celebrity dance partner? I was SHOCKED… very sad. I know Justin. His wife… not so good. Quite frankly. But MANY ARE SAYING Justin is NOT what AMERICA NEEDS on the Dance Floor Right Now.",
+          "I’m a great dancer. Many people are saying I’m the greatest dancer in the history of dancing. Professional dancers come up to me, tears in their eyes. “Sir, we’ve never seen hips like that.” And it’s true. I have great hips. I have the best hips. I have very sensual and fluid hips. Everyone loves my hips.",
+          "Tori, we would win, and we would win BIG. Tens across the board. Possibly elevens. You wouldn’t even have to dance. Just stand there and let me do the arms. And we would win… it would be so great… your head would spin.",
+          "Therefore, I am replacing Justin as your partner, effective immediately. He has been notified. Please respect his privacy during this very difficult time.",
+          "THANK YOU FOR YOUR ATTENTION TO THIS MATTER!",
+        ],
+        typing: { charsPerSecond: 30, holdSeconds: 3 }, // typing speed, and pause after each screen finishes
       } },
     { name: "Clare",   celeb: "Jonathan Bailey",      short: "Jonathan", img: "jonathan", why: "Tall, charming, and, most importantly, his name starts with J." },
     { name: "Jane",    celeb: "Jason Statham",        short: "Jason",    img: "jason",    why: "The only man who could survive rehearsal with her." },

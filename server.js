@@ -13,12 +13,18 @@ const PUBLIC_URL = process.env.PUBLIC_URL || ""; // optional: override the URL i
 const WRITE_SECONDS = +process.env.WRITE_SECONDS || 90;
 const VOTE_SECONDS = +process.env.VOTE_SECONDS || 45;
 const INTRO_SECONDS = +process.env.INTRO_SECONDS || 10; // partner-reveal slides auto-advance
+// Must match the host's emergency ticker: 5s of alert/photo, then each page types out and holds
+function emergencySeconds() {
+  const sw = (DATA.COUPLES.find(c => c.swap) || {}).swap;
+  if (!sw) return 0;
+  return Math.ceil(5 + sw.pages.reduce((t, pg) => t + pg.length / sw.typing.charsPerSecond + sw.typing.holdSeconds, 0) + 2);
+}
 // How long each screen stays up before moving on by itself (the host can always press Next sooner).
 // The lobby waits for the host; writing and voting run on their own timers; the finale is the end.
 const AUTO_SECONDS = {
   rules: 12,        // "Here's how tonight works"
   intro: INTRO_SECONDS,
-  emergency: 28,    // the partner-swap "emergency message" (alert, photo, typed-out quote)
+  emergency: emergencySeconds(), // the partner-swap message: alert, then each page typed out
   cast: 8,          // "This season's couples"
   roundIntro: 6,    // "Here's who's left"
   perform: 15,      // each of the two performances
